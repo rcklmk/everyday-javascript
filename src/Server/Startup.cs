@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,10 @@ namespace Server
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services
+                // Register HttpClient to be used for calling external services.
+                .AddSingleton<HttpClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
