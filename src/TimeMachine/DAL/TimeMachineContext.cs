@@ -1,10 +1,11 @@
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using TimeMachine.Models;
 
 namespace TimeMachine.DAL
 {
-    public class TimeMachineContext : DbContext
+    public class TimeMachineContext : IdentityDbContext<User>
     {
         public TimeMachineContext(DbContextOptions<TimeMachineContext> options)
             : base(options)
