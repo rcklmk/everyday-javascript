@@ -1,55 +1,147 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
+import { Service } from '../service';
+
+let initialState = {
+  isFetching: true,
+  authenticated: false,
+  headers: null,
+  snapshot: null
+};
+
+// =============================================================================
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
 
   constructor (props) {
     super(props);
-    this.state = { forecasts: [], loading: true };
-
-    fetch('api/SampleData/WeatherForecasts')
-      .then(response => response.json())
-      .then(data => {
-        this.setState({ forecasts: data, loading: false });
-      });
+    Object.assign(this, {
+      state: initialState,
+      handleClick: this.handleClick.bind(this)
+    });
   }
 
-  static renderForecastsTable (forecasts) {
+  async componentDidMount() {
+    let res = await Service.fetchHeaders();
+
+    if (res.redirected) {
+      this.setState(_ => ({
+        isFetching: false
+      }));
+      return;
+    }
+
+    else {
+      let result = await res.json();
+      this.setState(_ => ({
+        isFetching: false,
+        authenticated: true,
+        headers: result
+      }));
+    }
+  }
+
+  async handleClick(e) {
+    let id = parseInt(e.currentTarget.dataset.targetId);
+    let jsonStr = await Service.fetchSnapshot(id).then(res => res.text());
+    this.setState(_ => ({
+      snapshot: jsonStr
+    }));
+    return;
+  }
+
+  render() {
+    return React.createElement(View, {
+      ...this.state,
+      handleClick: this.handleClick
+    });
+  }
+}
+
+// =============================================================================
+
+let View = props => {
+  if (props.isFetching) {
     return (
-      <table className='table table-striped'>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.dateFormatted}>
-              <td>{forecast.dateFormatted}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <div>
+        Now loading...
+      </div>
     );
   }
 
-  render () {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
-
+  if (!props.authenticated) {
     return (
       <div>
-        <h1>Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
-        {contents}
+        Please login.
+      </div>
+    );
+  }
+
+  else {
+    return (
+      <div>
+        <TableContainer>
+          <table>
+            <thead>
+              <tr>
+                <th colSpan="2">
+                  click me!
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.headers.map(header =>
+                <ClickableRow
+                  key={header.id}
+                  onClick={props.handleClick}
+                  data-target-id={header.id}>
+                  <td>{header.id}</td>
+                  <td>{header.timestamp}</td>
+                </ClickableRow>)}
+            </tbody>
+          </table>
+        </TableContainer>
+        <SnapshotJsonViewer data={props.snapshot} />
       </div>
     );
   }
 }
+
+let TableContainer = styled.div`
+  display: inline-block;
+  width: 20rem;
+`
+
+let ClickableRow = styled.tr`
+  color: black;
+
+  &:hover {
+    cursor: pointer;
+    color: blue;
+  }
+`
+
+// =============================================================================
+
+let SnapshotJsonViewer = props => {
+  if (props.data === null) {
+    return null;
+  }
+
+  else {
+    return (
+      <JsonPanel>
+        <code>
+          {props.data}
+        </code>
+      </JsonPanel>
+    );
+  }
+}
+
+let JsonPanel = styled.div`
+  float: right;
+  clear: none;
+  width: 500px;
+`
