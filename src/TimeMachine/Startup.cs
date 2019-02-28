@@ -1,3 +1,4 @@
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -21,6 +22,10 @@ namespace TimeMachine
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services
+                // Register HttpClient to be used for calling external services.
+                .AddSingleton<HttpClient>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
