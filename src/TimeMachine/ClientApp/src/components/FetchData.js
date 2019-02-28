@@ -82,7 +82,7 @@ let View = props => {
     return (
       <div>
         <TableContainer>
-          <table>
+          <table className="table">
             <thead>
               <tr>
                 <th colSpan="2">
