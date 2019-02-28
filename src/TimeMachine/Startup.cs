@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using TimeMachine.Services;
+using TimeMachine.DAL;
 
 namespace TimeMachine
 {
@@ -21,11 +24,20 @@ namespace TimeMachine
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configure Database
+            var connection = "Data Source=index.db";
+            services.AddDbContext<TimeMachineContext>(options =>
+            {
+                options.UseSqlite(connection);
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services
                 // Register HttpClient to be used for calling external services.
-                .AddSingleton<HttpClient>();
+                .AddSingleton<HttpClient>()
+                // Register Service for running a scheduled task.
+                .AddSingleton<ScheduledService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -37,6 +49,9 @@ namespace TimeMachine
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // Request Singleton to invoke service instantiation.
+            app.ApplicationServices.GetService<ScheduledService>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
