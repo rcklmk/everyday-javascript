@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using TimeMachine.Services;
+using TimeMachine.DAL;
 
 namespace TimeMachine
 {
@@ -22,6 +24,13 @@ namespace TimeMachine
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configure Database
+            var connection = "Data Source=index.db";
+            services.AddDbContext<TimeMachineContext>(options =>
+            {
+                options.UseSqlite(connection);
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services
