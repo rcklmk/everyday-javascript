@@ -22,7 +22,7 @@ $ dotnet run
 ## TODO
 - Test if `Microsoft.EntityFrameworkCore.Sqlite` works without sqlite3 installed.
 - Migrate to SQL Server/MySQL
-- External service registration
+- External service registration [Microsoft, Facebook, Google]
 - External service authentication [Microsoft, Facebook, Google]
 - Unit Tests
 - AWS/Azure Cloud Deployment
