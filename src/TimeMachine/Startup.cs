@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TimeMachine.Services;
 
 namespace TimeMachine
 {
@@ -25,7 +26,9 @@ namespace TimeMachine
 
             services
                 // Register HttpClient to be used for calling external services.
-                .AddSingleton<HttpClient>();
+                .AddSingleton<HttpClient>()
+                // Register Service for running a scheduled task.
+                .AddSingleton<ScheduledService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -37,6 +40,9 @@ namespace TimeMachine
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // Request Singleton to invoke service instantiation.
+            app.ApplicationServices.GetService<ScheduledService>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
