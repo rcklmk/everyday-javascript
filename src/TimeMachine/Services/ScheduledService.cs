@@ -1,24 +1,25 @@
 using System;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using TimeMachine.DAL;
 
 namespace TimeMachine.Services
 {
     public class ScheduledService
     {
-        private readonly TimeMachineContext _db;
+        private readonly IServiceScopeFactory _srvFactory;
         private readonly HttpClient _http;
         private readonly string datasource;
 
         public ScheduledService
         (
-            TimeMachineContext db,
+            IServiceScopeFactory srvFactory,
             HttpClient http,
             IConfiguration config
         )
         {
-            _db = db;
+            _srvFactory = srvFactory;
             _http = http;
             datasource = config.GetValue<string>("SubReddit");
 
@@ -32,14 +33,21 @@ namespace TimeMachine.Services
                 || (lastHour == 23 && DateTime.Now.Hour == 0))
                 {
                     lastHour = DateTime.Now.Hour;
-                    RunTask();
+
+                    // Create and run a scoped task with dbContext.
+                    using (var scope = _srvFactory.CreateScope())
+                    {
+                        var db = scope.ServiceProvider.GetRequiredService<TimeMachineContext>();
+                        RunTask(db);
+                    }
+                    
                 }
             });
 
             timer.Enabled = true;
         }
 
-        public void RunTask()
+        public void RunTask(TimeMachineContext db)
         {
             // TODO: Convert to async. Save to database here.
         }
