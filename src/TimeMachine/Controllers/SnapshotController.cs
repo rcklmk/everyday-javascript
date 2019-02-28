@@ -32,13 +32,8 @@ namespace TimeMachine.Controllers
         [HttpGet("all/headers")]
         public IEnumerable<object> GetAllHeaders()
         {
-            return from s in _db.Set<SubRedditSnapshot>()
-                   orderby s.Timestamp descending
-                   select new
-                   {
-                       id = s.ID,
-                       timestamp = s.Timestamp
-                   };
+            return _db.Snapshots.Select(s => new {s.ID, s.Timestamp})
+                                .OrderByDescending(s => s.Timestamp);
         }
     }
 }
