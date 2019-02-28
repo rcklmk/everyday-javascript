@@ -48,7 +48,7 @@ class Container extends React.Component {
     return;
   }
 
-	render() {
+  render() {
     return React.createElement(View, {
       ...this.state,
       handleChangeText: this.handleChangeText,
