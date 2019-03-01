@@ -1,9 +1,13 @@
 # everyday-javascript
 
+## Requires
+ - .NET Core SDK (latest)
+ - npm (version 6 and 8 tested)
+
 ## [Development] deployment
 ```
 $ dotnet build
-$ dotnet ef database update # may need sqlite3 [untested without]
+$ dotnet ef database update
 $ dotnet run
 ```
 
